@@ -6,6 +6,7 @@ namespace Misaf\VendraUserProfile\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 #[Fillable(['name', 'description', 'slug', 'is_default', 'status'])]
 #[Hidden(['tenant_id'])]
+#[UseFactory(UserProfileFactory::class)]
 final class UserProfile extends Model
 {
     use BelongsToTenant;
