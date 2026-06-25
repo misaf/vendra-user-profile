@@ -4,55 +4,29 @@ declare(strict_types=1);
 
 namespace Misaf\VendraUserProfile\Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Config;
-use Misaf\VendraTenant\Models\Tenant;
+use Misaf\VendraSupport\Database\Seeders\PermissionPolicySeeder as BasePermissionPolicySeeder;
+use Misaf\VendraTenant\Concerns\RequiresCurrentTenant;
 use Misaf\VendraUserProfile\Enums\UserProfilePolicyEnum;
-use Spatie\Permission\PermissionRegistrar;
 
-final class PermissionPolicySeeder extends Seeder
+final class PermissionPolicySeeder extends BasePermissionPolicySeeder
 {
+    use RequiresCurrentTenant;
+
+    protected const string MODULE_NAME = 'vendra-user-profile';
+
     public function run(): void
     {
-        $tenant = Tenant::query()->first();
+        $tenant = $this->currentTenant();
 
-        if ( ! $tenant) {
-            $this->command?->error('Tenants not found. Please run TenantSeeder first.');
-
-            return;
-        }
-
-        $tenant->makeCurrent();
-
-        $this->seedPermissionPolicies($tenant);
+        $this->seedPermissionPolicies($tenant->getKey());
     }
 
-    private function seedPermissionPolicies(Tenant $tenant): void
+    /**
+     * @return list<string>
+     */
+    protected function policies(): array
     {
-        $permissionModel = Config::string('permission.models.permission');
-        $guardName = Config::string('auth.defaults.guard', 'web');
-        $policies = array_values(array_unique([
-            ...array_column(UserProfilePolicyEnum::cases(), 'value'),
-        ]));
-
-        $createdCount = 0;
-        $existingCount = 0;
-
-        foreach ($policies as $policy) {
-            $permission = $permissionModel::query()->firstOrCreate([
-                'name'       => $policy,
-                'guard_name' => $guardName,
-            ]);
-
-            if ($permission->wasRecentlyCreated) {
-                $createdCount++;
-            } else {
-                $existingCount++;
-            }
-        }
-
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-
-        $this->command?->info(sprintf('Successfully seeded %d user-profile policy permissions for %s tenant. %d created, %d already existed.', count($policies), $tenant->slug, $createdCount, $existingCount));
+        return array_column(UserProfilePolicyEnum::cases(), 'value');
     }
+
 }
