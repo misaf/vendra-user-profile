@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Misaf\VendraUserProfile\Filament\Resources\Schemas;
 
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
@@ -40,7 +39,7 @@ final class UserProfileForm
                     })
                     ->autofocus()
                     ->columnSpan(['lg' => 1])
-                    ->label(__('vendra-blog::attributes.name'))
+                    ->label(__('vendra-user-profile::attributes.name'))
                     ->live(onBlur: true)
                     ->required()
                     ->unique(
@@ -53,30 +52,20 @@ final class UserProfileForm
                 TextInput::make('slug')
                     ->afterStateUpdated(fn(Livewire $livewire) => $livewire->validateOnly("data.slug"))
                     ->columnSpan(['lg' => 1])
-                    ->helperText(__('vendra-blog::attributes.slug_helper_text'))
-                    ->label(__('vendra-blog::attributes.slug'))
-                    ->label(__('vendra-blog::attributes.slug'))
+                    ->label(__('vendra-user-profile::attributes.slug'))
                     ->required()
                     ->unique(modifyRuleUsing: fn(Unique $rule) => $rule->withoutTrashed()),
 
-                RichEditor::make('description')
+                Textarea::make('description')
                     ->columnSpanFull()
-                    ->label(__('vendra-blog::attributes.description'))
-                    ->required()
-                    ->json(),
-
-                SpatieMediaLibraryFileUpload::make('image')
-                    ->collection('blog-posts')
-                    ->columnSpanFull()
-                    ->image()
-                    ->label(__('vendra-blog::attributes.image'))
-                    ->panelLayout('grid'),
+                    ->label(__('vendra-user-profile::attributes.description'))
+                    ->maxLength(255),
 
                 Toggle::make('status')
                     ->afterStateUpdated(fn(Livewire $livewire) => $livewire->validateOnly("data.status"))
                     ->columnSpanFull()
                     ->default(false)
-                    ->label(__('vendra-blog::attributes.status'))
+                    ->label(__('vendra-user-profile::attributes.status'))
                     ->onIcon('heroicon-m-bolt')
                     ->required()
                     ->rules([

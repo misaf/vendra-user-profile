@@ -5,7 +5,9 @@ declare(strict_types=1);
 return [
     'created_at'  => 'Created At',
     'description' => 'Description',
-    'guard_name'  => 'Guard Name',
     'name'        => 'Name',
+    'slug'        => 'Slug',
+    'status'      => 'Status',
     'updated_at'  => 'Updated At',
+    'user'        => 'User',
 ];

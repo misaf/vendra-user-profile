@@ -41,7 +41,10 @@ final class UserProfileFactory extends Factory
     {
         $userId = $user instanceof User ? $user->id : $user;
 
-        return $this->state(fn(): array => ['user_id' => $userId]);
+        return $this->state(fn(): array => [
+            'tenant_id' => $user instanceof User ? $user->tenant_id : Tenant::factory(),
+            'user_id'   => $userId,
+        ]);
     }
 
     public function enabled(): static

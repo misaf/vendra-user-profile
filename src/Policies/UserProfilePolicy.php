@@ -6,8 +6,8 @@ namespace Misaf\VendraUserProfile\Policies;
 
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Misaf\VendraUser\Models\User;
-use Misaf\VendraUser\Models\UserProfile;
 use Misaf\VendraUserProfile\Enums\UserProfilePolicyEnum;
+use Misaf\VendraUserProfile\Models\UserProfile;
 
 final class UserProfilePolicy
 {

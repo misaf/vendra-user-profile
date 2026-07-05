@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Misaf\VendraUserProfile\Traits;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Misaf\VendraUser\Models\UserProfile;
+use Misaf\VendraUserProfile\Models\UserProfile;
 
 trait BelongsToUserProfile
 {

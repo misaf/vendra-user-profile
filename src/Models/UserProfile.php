@@ -10,15 +10,13 @@ use Illuminate\Database\Eloquent\Attributes\UseFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Misaf\VendraActivityLog\Concerns\HasDefaultActivityLogOptions;
-use Misaf\VendraTenant\Traits\BelongsToTenant;
+use Misaf\VendraSupport\Traits\BelongsToTenant;
 use Misaf\VendraUser\Traits\BelongsToUser;
 use Misaf\VendraUserProfile\Database\Factories\UserProfileFactory;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -35,7 +33,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon $updated_at
  * @property Carbon|null $deleted_at
  */
-#[Fillable(['name', 'description', 'slug', 'is_default', 'status'])]
+#[Fillable(['tenant_id', 'user_id', 'name', 'description', 'slug', 'is_default', 'status'])]
 #[Hidden(['tenant_id'])]
 #[UseFactory(UserProfileFactory::class)]
 final class UserProfile extends Model
@@ -59,6 +57,7 @@ final class UserProfile extends Model
         return [
             'id'          => 'integer',
             'tenant_id'   => 'integer',
+            'user_id'     => 'integer',
             'name'        => 'string',
             'description' => 'string',
             'slug'        => 'string',
@@ -73,18 +72,8 @@ final class UserProfile extends Model
     protected function fullName(): Attribute
     {
         return Attribute::make(
-            get: function (): string {
-                return "{$this->first_name} {$this->last_name}";
-            },
+            get: fn(): string => $this->name,
         );
-    }
-
-    /**
-     * @return MorphMany<Media, $this>
-     */
-    public function multimedia(): MorphMany
-    {
-        return $this->media();
     }
 
     public function getSlugOptions(): SlugOptions

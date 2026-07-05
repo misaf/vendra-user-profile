@@ -7,9 +7,9 @@ namespace Misaf\VendraUserProfile\Filament\Resources\Tables;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\QueryBuilder\Constraints\SelectConstraint;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\ColumnGroup;
@@ -20,13 +20,6 @@ use Filament\Tables\Filters\QueryBuilder;
 use Filament\Tables\Filters\QueryBuilder\Constraints\TextConstraint;
 use Filament\Tables\Grouping\Group;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Config;
-use Laravel\Pennant\Feature;
-use Misaf\VendraPermission\Enums\PermissionFeatureEnum;
-use Misaf\VendraPermission\Filament\Clusters\Resources\Permissions\Actions\Permissions\DeleteBulkAction;
-use Misaf\VendraPermission\Filament\Clusters\Resources\Permissions\Actions\Roles\SyncBulkAction;
-use Misaf\VendraPermission\Models\Permission;
-use Misaf\VendraTenant\Models\Tenant;
 
 final class UserProfileTable
 {
@@ -51,7 +44,7 @@ final class UserProfileTable
 
             TextColumn::make('name')
                 ->alignStart()
-                ->description(fn(Permission $record): ?string => $record->description)
+                ->description(fn($record): ?string => $record->description)
                 ->label(__('vendra-user-profile::table.columns.name'))
                 ->searchable()
                 ->sortable(),
@@ -91,13 +84,6 @@ final class UserProfileTable
                         ->constraints([
                             TextConstraint::make('name')
                                 ->label(__('vendra-user-profile::table.columns.name')),
-
-                            SelectConstraint::make('guard_name')
-                                ->label(__('vendra-user-profile::table.columns.guard_name'))
-                                ->options(
-                                    collect(Config::array('auth.guards'))->keys()->mapWithKeys(fn($value): array => [$value => $value])->all()
-                                )
-                                ->multiple(),
                         ]),
                 ],
                 layout: FiltersLayout::AboveContentCollapsible,
@@ -113,23 +99,12 @@ final class UserProfileTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    SyncBulkAction::make()
-                        ->visible(fn(): bool => self::canUseBulkRoleAssignment()),
-
                     DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultGroup(
-                Group::make('guard_name')
-                    ->label(__('vendra-user-profile::table.groups.guard'))
+                Group::make('user.username')
+                    ->label(__('vendra-user-profile::table.groups.user'))
             );
-    }
-
-    private static function canUseBulkRoleAssignment(): bool
-    {
-        $tenant = Tenant::current();
-
-        return Feature::for($tenant)->active(PermissionFeatureEnum::MODULE_ENABLED->value)
-            && Feature::for($tenant)->active(PermissionFeatureEnum::BULK_ROLE_ASSIGNMENT->value);
     }
 }

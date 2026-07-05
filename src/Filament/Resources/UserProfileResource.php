@@ -19,8 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Laravel\Pennant\Feature;
 use Misaf\VendraTenant\Models\Tenant;
-use Misaf\VendraUser\Filament\Clusters\Resources\UserProfileDocuments\RelationManagers\UserProfileDocumentRelationManager;
-use Misaf\VendraUser\Filament\Clusters\Resources\UserProfilePhones\RelationManagers\UserProfilePhoneRelationManager;
 use Misaf\VendraUser\Filament\Clusters\UsersCluster;
 use Misaf\VendraUserProfile\Enums\UserProfileFeatureEnum;
 use Misaf\VendraUserProfile\Filament\Resources\Pages\CreateUserProfile;
@@ -71,12 +69,12 @@ final class UserProfileResource extends Resource
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['first_name', 'last_name'];
+        return ['name', 'slug', 'user.username', 'user.email'];
     }
 
     public static function getGlobalSearchEloquentQuery(): Builder
     {
-        return parent::getGlobalSearchEloquentQuery()->with(['user', 'latestUserProfilePhone']);
+        return parent::getGlobalSearchEloquentQuery()->with(['user']);
     }
 
     /**
@@ -97,13 +95,12 @@ final class UserProfileResource extends Resource
     {
         return [
             __('form.email') => str('<span dir="ltr">' . $record->user->email . '</span>')->toHtmlString(),
-            __('form.phone') => str('<span dir="ltr">' . $record?->latestUserProfilePhone?->phone . '</span>')->toHtmlString(),
         ];
     }
 
     public static function getGlobalSearchResultTitle(Model $record): string|Htmlable
     {
-        return str('<span dir="ltr">' . $record->full_name . '</span>')->toHtmlString();
+        return str('<span dir="ltr">' . $record->name . '</span>')->toHtmlString();
     }
 
     /**

@@ -12,6 +12,7 @@ use Laravel\Pennant\Feature;
 use Misaf\VendraTenant\Models\Tenant;
 use Misaf\VendraUser\Models\User;
 use Misaf\VendraUserProfile\Enums\UserProfileFeatureEnum;
+use Misaf\VendraUserProfile\Models\UserProfile;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -51,8 +52,15 @@ final class UserProfileServiceProvider extends PackageServiceProvider
             return $user->hasRole(Config::string('vendra-permission.super_admin_role', 'superadmin')) ? true : null;
         });
 
+        $this->registerUserProfileRelationship();
         $this->discoverPackageFeatures();
         $this->registerTenantFeatures();
+    }
+
+    private function registerUserProfileRelationship(): void
+    {
+        User::resolveRelationUsing('profiles', fn(User $user) => $user->hasMany(UserProfile::class));
+        User::resolveRelationUsing('userProfiles', fn(User $user) => $user->profiles());
     }
 
     private function discoverPackageFeatures(): void
