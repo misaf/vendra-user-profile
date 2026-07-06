@@ -12,11 +12,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
-use Misaf\VendraActivityLog\Concerns\HasDefaultActivityLogOptions;
+use Misaf\VendraSupport\Contracts\ShouldLogActivity;
 use Misaf\VendraSupport\Traits\BelongsToTenant;
 use Misaf\VendraUser\Traits\BelongsToUser;
 use Misaf\VendraUserProfile\Database\Factories\UserProfileFactory;
-use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -36,17 +35,15 @@ use Spatie\Sluggable\SlugOptions;
 #[Fillable(['tenant_id', 'user_id', 'name', 'description', 'slug', 'is_default', 'status'])]
 #[Hidden(['tenant_id'])]
 #[UseFactory(UserProfileFactory::class)]
-final class UserProfile extends Model
+final class UserProfile extends Model implements ShouldLogActivity
 {
     use BelongsToTenant;
     use BelongsToUser;
-    use HasDefaultActivityLogOptions;
 
     /** @use HasFactory<UserProfileFactory> */
     use HasFactory;
 
     use HasSlug;
-    use LogsActivity;
     use SoftDeletes;
 
     /**
