@@ -6,8 +6,9 @@ namespace Misaf\VendraUserProfile\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Attributes\UseModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use Misaf\VendraTenant\Models\Tenant;
+use Misaf\VendraSupport\Support\TenantAwareness;
 use Misaf\VendraUser\Models\User;
 use Misaf\VendraUserProfile\Models\UserProfile;
 
@@ -20,7 +21,6 @@ final class UserProfileFactory extends Factory
     public function definition(): array
     {
         return [
-            'tenant_id'   => Tenant::factory(),
             'user_id'     => User::factory(),
             'name'        => fake()->sentences(1, true),
             'description' => fake()->realTextBetween(100, 200),
@@ -30,20 +30,24 @@ final class UserProfileFactory extends Factory
         ];
     }
 
-    public function forTenant(Tenant|int $tenant): static
+    /**
+     * No-op without a tenant provider, since there is no `tenant_id` column.
+     */
+    public function forTenant(Model|int $tenant): static
     {
-        $tenantId = $tenant instanceof Tenant ? $tenant->id : $tenant;
+        if ( ! TenantAwareness::enabled()) {
+            return $this;
+        }
 
-        return $this->state(fn(): array => ['tenant_id' => $tenantId]);
+        return $this->state(fn(): array => [
+            'tenant_id' => $tenant instanceof Model ? $tenant->getKey() : $tenant,
+        ]);
     }
 
     public function forUser(User|int $user): static
     {
-        $userId = $user instanceof User ? $user->id : $user;
-
         return $this->state(fn(): array => [
-            'tenant_id' => $user instanceof User ? $user->tenant_id : Tenant::factory(),
-            'user_id'   => $userId,
+            'user_id' => $user instanceof User ? $user->id : $user,
         ]);
     }
 

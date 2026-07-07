@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Laravel\Pennant\Feature;
-use Misaf\VendraTenant\Models\Tenant;
+use Misaf\VendraSupport\Contracts\TenantResolver;
 use Misaf\VendraUser\Filament\Clusters\UsersCluster;
 use Misaf\VendraUserProfile\Enums\UserProfileFeatureEnum;
 use Misaf\VendraUserProfile\Filament\Resources\Pages\CreateUserProfile;
@@ -44,12 +44,12 @@ final class UserProfileResource extends Resource
 
     public static function getBreadcrumb(): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public static function getModelLabel(): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public static function getNavigationGroup(): string
@@ -59,12 +59,12 @@ final class UserProfileResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public static function getGloballySearchableAttributes(): array
@@ -94,7 +94,7 @@ final class UserProfileResource extends Resource
     public static function getGlobalSearchResultDetails(Model $record): array
     {
         return [
-            __('form.email') => str('<span dir="ltr">' . $record->user->email . '</span>')->toHtmlString(),
+            __('vendra-user-profile::attributes.email') => str('<span dir="ltr">' . $record->user->email . '</span>')->toHtmlString(),
         ];
     }
 
@@ -139,7 +139,7 @@ final class UserProfileResource extends Resource
 
     public static function canAccess(): bool
     {
-        $tenant = Tenant::current();
+        $tenant = app(TenantResolver::class)->current();
 
         return Feature::for($tenant)->active(UserProfileFeatureEnum::MODULE_ENABLED->value);
     }

@@ -18,17 +18,17 @@ final class UserProfileRelationManager extends RelationManager
 
     public static function getModelLabel(): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return __('navigation.user_profile');
+        return __('vendra-user-profile::navigation.user_profile');
     }
 
     public function isReadOnly(): bool

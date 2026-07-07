@@ -5,41 +5,34 @@ declare(strict_types=1);
 namespace Misaf\VendraUserProfile\Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Misaf\VendraTenant\Models\Tenant;
+use Misaf\VendraSupport\Concerns\RequiresCurrentTenant;
 use Misaf\VendraUser\Models\User;
 use Misaf\VendraUserProfile\Models\UserProfile;
 
 final class DatabaseSeeder extends Seeder
 {
+    use RequiresCurrentTenant;
+
     public function run(): void
     {
-        $tenant = Tenant::query()->first();
+        $this->currentTenantOrNull();
 
-        if ( ! $tenant) {
-            $this->command?->error('Tenants not found. Please run TenantSeeder first.');
-            return;
-        }
-
-        $tenant->makeCurrent();
-
-        $this->seedUserProfiles($tenant);
+        $this->seedUserProfiles();
     }
 
-    private function seedUserProfiles(Tenant $tenant): void
+    private function seedUserProfiles(): void
     {
         $users = User::query()->get();
 
         $createdCount = 0;
         $existingCount = 0;
 
-        foreach ($users as $userData) {
-            $userProfile = UserProfile::query()
-                ->firstOrCreate([
-                    'tenant_id' => $tenant->id,
-                    'user_id'   => $userData->id,
-                    'name'      => $userData['username'],
-                    'status'    => true
-                ]);
+        foreach ($users as $user) {
+            $userProfile = UserProfile::query()->firstOrCreate([
+                'user_id' => $user->id,
+                'name'    => $user->username,
+                'status'  => true,
+            ]);
 
             if ($userProfile->wasRecentlyCreated) {
                 $createdCount++;
@@ -48,6 +41,11 @@ final class DatabaseSeeder extends Seeder
             }
         }
 
-        $this->command?->info(sprintf('Successfully seeded %d user profile module for %s tenant. %d created, %d already existed.', count($users), $tenant->slug, $createdCount, $existingCount));
+        $this->command?->info(sprintf(
+            'Successfully seeded %d user profiles. %d created, %d already existed.',
+            $users->count(),
+            $createdCount,
+            $existingCount,
+        ));
     }
 }

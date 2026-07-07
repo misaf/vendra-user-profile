@@ -9,7 +9,6 @@ use Illuminate\Foundation\Console\AboutCommand;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Pennant\Feature;
-use Misaf\VendraTenant\Models\Tenant;
 use Misaf\VendraUser\Models\User;
 use Misaf\VendraUserProfile\Enums\UserProfileFeatureEnum;
 use Misaf\VendraUserProfile\Models\UserProfile;

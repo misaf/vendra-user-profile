@@ -4,22 +4,12 @@ declare(strict_types=1);
 
 namespace Misaf\VendraUserProfile\Database\Seeders;
 
-use Misaf\VendraSupport\Concerns\RequiresCurrentTenant;
 use Misaf\VendraSupport\Database\Seeders\PermissionPolicySeeder as BasePermissionPolicySeeder;
 use Misaf\VendraUserProfile\Enums\UserProfilePolicyEnum;
 
 final class PermissionPolicySeeder extends BasePermissionPolicySeeder
 {
-    use RequiresCurrentTenant;
-
     protected const string MODULE_NAME = 'vendra-user-profile';
-
-    public function run(): void
-    {
-        $tenant = $this->currentTenant();
-
-        $this->seedPermissionPolicies($tenant->getKey());
-    }
 
     /**
      * @return list<string>

@@ -38,7 +38,7 @@ final class UserProfileTable
                 ->badge()
                 ->expandableLimitedList()
                 ->icon(Heroicon::UserGroup)
-                ->label(__('vendra-user::table.columns.user'))
+                ->label(__('vendra-user-profile::table.columns.user'))
                 ->limitList(2)
                 ->listWithLineBreaks(),
 

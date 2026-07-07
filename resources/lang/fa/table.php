@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 return [
     'columns' => [
-        'created_at' => 'Created At',
-        'name'       => 'Name',
-        'updated_at' => 'Updated At',
-        'user'       => 'User',
+        'created_at' => 'تاریخ ایجاد',
+        'name'       => 'نام',
+        'updated_at' => 'تاریخ بروزرسانی',
+        'user'       => 'کاربر',
     ],
     'groups' => [
-        'user' => 'User',
+        'user' => 'کاربر',
     ],
 ];
