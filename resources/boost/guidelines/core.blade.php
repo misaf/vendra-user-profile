@@ -4,7 +4,7 @@ The `misaf/vendra-user-profile` package owns per-user profiles attached to the u
 
 ### Standards
 
-- Keep user-profile domain code inside `app-modules/vendra-user-profile` using the `Misaf\VendraUserProfile` namespace.
+- Keep user-profile domain code inside `packages/vendra-user-profile` using the `Misaf\VendraUserProfile` namespace.
 - Use this package for models, migrations, factories, seeders, policies, permission enums, observers, Filament resources, translations, config, and package bootstrapping.
 - Registers `profiles` / `userProfiles` on the `User` model via `User::resolveRelationUsing(...)` in the service provider; do not hard-code the relation on the `User` class.
 - Follow existing model conventions where they apply: tenant ownership, translated `name` / `description` / `slug`, soft deletes, sortable `position`, media collections, factories, and typed relationships.

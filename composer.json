@@ -1,6 +1,5 @@
 {
     "name": "misaf/vendra-user-profile",
-    "version": "0.0.7",
     "keywords": [
         "laravel",
         "filamentphp",
@@ -62,13 +61,13 @@
         }
     },
     "extra": {
+        "branch-alias": {
+            "dev-master": "0.0.x-dev"
+        },
         "laravel": {
             "providers": [
                 "Misaf\\VendraUserProfile\\UserProfileServiceProvider"
             ]
-        },
-        "branch-alias": {
-            "dev-master": "13.x-dev"
         }
     },
     "scripts": {
