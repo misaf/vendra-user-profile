@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Misaf\VendraUserProfile;
+namespace Misaf\VendraUserProfile\Providers;
 
 use Composer\InstalledVersions;
 
@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Pennant\Feature;
 use Misaf\VendraSupport\Filament\Concerns\ResolvesConfiguredPanels;
 use Misaf\VendraUser\Models\User;
-use Misaf\VendraUserProfile\Enums\UserProfileFeatureEnum;
 use Misaf\VendraUserProfile\Models\UserProfile;
+use Misaf\VendraUserProfile\UserProfilePlugin;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -58,43 +58,22 @@ final class UserProfileServiceProvider extends PackageServiceProvider
 
         $this->registerUserProfileRelationship();
         $this->discoverPackageFeatures();
-        $this->registerTenantFeatures();
     }
 
     private function registerUserProfileRelationship(): void
     {
         User::resolveRelationUsing('profiles', fn(User $user) => $user->hasMany(UserProfile::class));
-        User::resolveRelationUsing('userProfiles', fn(User $user) => $user->profiles());
+        User::resolveRelationUsing('userProfiles', fn(User $user) => $user->hasMany(UserProfile::class));
     }
 
     private function discoverPackageFeatures(): void
     {
         $featureNamespace = 'Misaf\\VendraUserProfile\\Features';
-        $featurePath = __DIR__ . '/Features';
+        $featurePath = dirname(__DIR__) . '/Features';
 
-        if (Config::boolean('vendra-user-profile.features.discover', false) && is_dir($featurePath)) {
+        if (Config::boolean('vendra-user-profile.features_discover', false) && is_dir($featurePath)) {
             Feature::discover($featureNamespace, $featurePath);
         }
     }
 
-    private function registerTenantFeatures(): void
-    {
-        foreach (UserProfileFeatureEnum::cases() as $feature) {
-            Feature::define($feature->value, function (mixed $scope): bool {
-                if ( ! Config::boolean('vendra-user-profile.features.enabled', true)) {
-                    return false;
-                }
-
-                return false;
-
-                // if ( ! $scope instanceof Tenant) {
-                //     return false;
-                // }
-
-                // $defaults = Config::array('vendra-user-profile.features.defaults');
-
-                // return (bool) ($defaults[$feature->value] ?? false);
-            });
-        }
-    }
 }

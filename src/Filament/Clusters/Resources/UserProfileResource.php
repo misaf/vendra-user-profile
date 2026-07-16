@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Misaf\VendraUserProfile\Filament\Resources;
+namespace Misaf\VendraUserProfile\Filament\Clusters\Resources;
 
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Clusters\Cluster;
 use Filament\Resources\Pages\PageRegistration;
@@ -12,6 +13,7 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Resources\RelationManagers\RelationManagerConfiguration;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,29 +21,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\HtmlString;
 use Laravel\Pennant\Feature;
 use Misaf\VendraSupport\Contracts\TenantResolver;
-use Misaf\VendraSupport\Filament\Navigation\NavigationGroup;
-use Misaf\VendraUser\Filament\Clusters\UsersCluster;
-use Misaf\VendraUserProfile\Enums\UserProfileFeatureEnum;
-use Misaf\VendraUserProfile\Filament\Resources\Pages\CreateUserProfile;
-use Misaf\VendraUserProfile\Filament\Resources\Pages\EditUserProfile;
-use Misaf\VendraUserProfile\Filament\Resources\Pages\ListUserProfiles;
-use Misaf\VendraUserProfile\Filament\Resources\Pages\ViewUserProfile;
-use Misaf\VendraUserProfile\Filament\Resources\Schemas\UserProfileForm;
-use Misaf\VendraUserProfile\Filament\Resources\Tables\UserProfileTable;
+use Misaf\VendraSupport\Filament\Clusters\CustomersCluster;
+use Misaf\VendraUserProfile\Features\ModuleEnabled;
+use Misaf\VendraUserProfile\Filament\Clusters\Resources\Pages\CreateUserProfile;
+use Misaf\VendraUserProfile\Filament\Clusters\Resources\Pages\EditUserProfile;
+use Misaf\VendraUserProfile\Filament\Clusters\Resources\Pages\ListUserProfiles;
+use Misaf\VendraUserProfile\Filament\Clusters\Resources\Pages\ViewUserProfile;
+use Misaf\VendraUserProfile\Filament\Clusters\Resources\Schemas\UserProfileForm;
+use Misaf\VendraUserProfile\Filament\Clusters\Resources\Tables\UserProfileTable;
 use Misaf\VendraUserProfile\Models\UserProfile;
 
 final class UserProfileResource extends Resource
 {
     protected static ?string $model = UserProfile::class;
 
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedIdentification;
+
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $slug = 'profiles';
+    protected static ?string $slug = 'user-profiles';
 
     /**
      * @var class-string<Cluster>|null
      */
-    protected static ?string $cluster = UsersCluster::class;
+    protected static ?string $cluster = CustomersCluster::class;
 
     public static function getBreadcrumb(): string
     {
@@ -51,11 +54,6 @@ final class UserProfileResource extends Resource
     public static function getModelLabel(): string
     {
         return __('vendra-user-profile::navigation.user_profile');
-    }
-
-    public static function getNavigationGroup(): string
-    {
-        return NavigationGroup::Customers->getLabel();
     }
 
     public static function getNavigationLabel(): string
@@ -142,6 +140,6 @@ final class UserProfileResource extends Resource
     {
         $tenant = app(TenantResolver::class)->current();
 
-        return Feature::for($tenant)->active(UserProfileFeatureEnum::MODULE_ENABLED->value);
+        return Feature::for($tenant)->active(ModuleEnabled::class);
     }
 }

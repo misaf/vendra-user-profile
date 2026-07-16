@@ -1,13 +1,13 @@
 ---
 name: vendra-user-profile-development
-description: "Use this skill when creating, modifying, reviewing, or testing the Vendra User Profile module in packages/vendra-user-profile, or when creating future user-profile-like Filament/domain modules. Trigger for `UserProfile` models, vendra-user-profile migrations, factories, seeders, policies, permission enums, Filament resources, clusters, forms, tables, relation managers, translations, media collections, plugin/service provider wiring, and module configuration."
+description: "Create, modify, review, or test the Vendra User Profile package in packages/vendra-user-profile. Use for UserProfile, dynamic User relations registered by the service provider, profile traits, migrations, factories, policies, Filament resources, configuration, translations, permission integration, package wiring, and tests."
 ---
 
 # Vendra User Profile
 
-## Required Context
+## Workflow
 
-Always use this skill together with `modular` for module structure, `laravel-best-practices` for Laravel PHP, and `pest-testing` when tests are added or changed. Use `tailwindcss-development` only when editing Blade or Tailwind UI.
+Always use this skill together with `laravel-best-practices` for Laravel PHP and `pest-testing` when tests are added or changed. Use `tailwindcss-development` only when editing Blade or Tailwind UI.
 
 Before code changes, use Laravel Boost `application-info` and `search-docs` for the relevant packages. Prefer Boost database and browser tools over ad hoc debugging.
 
@@ -26,19 +26,15 @@ Follow the existing `UserProfile` patterns for new user-profile entities.
 
 - Use `declare(strict_types=1)`, final classes, typed method signatures, and PHPDoc generics for relationships.
 - Follow Laravel comment style: document with PHPDoc (array shapes, generics, `@see`) and reserve inline comments for genuinely complex logic. Match the surrounding file's density and do not add comments that restate the code.
-- Prefer the Laravel attributes already used here, such as `#[Fillable]`, `#[Hidden]`, `#[UseFactory]`, and `#[ObservedBy]`.
+- Prefer only the Laravel attributes already used by the affected sibling model; do not add model attributes merely because another package uses them.
 - Keep the module tenant-agnostic: derive tenant awareness purely from the bound `TenantResolver` in `misaf/vendra-support` (`TenantAwareness`, `BelongsToTenant`, `TenantSchema`, `RequiresCurrentTenant`). The module must build and run whether or not a tenant provider is installed, so never reference a concrete provider such as `Misaf\VendraTenant` anywhere — models, migrations, factories, seeders, or fixtures. There is no `tenant_aware` config toggle.
 - Hide `tenant_id` and keep tenant behavior centralized in the support layer; do not duplicate tenant scoping or `tenant_id` assignment in models, Filament resources, factories, or seeders. `BelongsToTenant` assigns `tenant_id` on `creating` from the current tenant.
-- Use `HasTranslations` for localized `name`, `description`, and `slug`-like fields where the entity is translatable.
-- Use `SoftDeletes` for user-managed content records unless there is a clear reason not to.
-- Use `SortableTrait` and an integer `position` field for ordered admin content.
-- For media-enabled records, implement `HasMedia`, use `InteractsWithMedia` with `HasDefaultMediaConversions`, expose a `multimedia()` morph relation, and define a stable `MEDIA_COLLECTION` constant.
-- For slugs, use `Spatie\Sluggable\SlugOptions`, generate from translated names, and prevent overwrite unless regeneration is intended.
+- Reuse only the traits and conventions present on the affected sibling model; do not infer translations, media, slugs, sorting, or soft deletes from another package.
 - Registers `profiles` / `userProfiles` on the `User` model via `User::resolveRelationUsing(...)` in the service provider; do not hard-code the relation on the `User` class.
 
 ## Filament Standards
 
-Keep Filament UI organized under `src/Filament/Clusters`.
+Keep Filament UI under `src/Filament/Clusters/Resources`. `UserProfileResource` belongs to the shared `CustomersCluster` through its `$cluster` property, so its namespace and plugin discovery path must use `Filament\Clusters\Resources`.
 
 - Register module UI through the module `Plugin` and `ServiceProvider`; do not manually wire resources in unrelated panel providers.
 - Keep resource classes thin. Delegate form schemas to `Schemas/*Form.php` and table configuration to `Tables/*Table.php`.
@@ -55,12 +51,14 @@ Use policy enums and policies as the permission source.
 - Keep policy method names aligned with Filament actions: `viewAny`, `view`, `create`, `update`, `delete`, `deleteAny`, `restore`, `restoreAny`, `forceDelete`, `forceDeleteAny`, `replicate`, and `reorder` as applicable.
 - Update `PermissionPolicySeeder` when new permissions are introduced.
 - Keep navigation labels and groups configurable through the module `Plugin` and `config/vendra-user-profile.php`. Do not add a `tenant_aware` config value; tenant awareness derives from the bound `TenantResolver`.
+- Keep feature configuration flat with `features_enabled`, `features_discover`, and `module_enabled`; do not introduce nested `features.*` keys. Check module access through `Features\ModuleEnabled::class`, whose Pennant `before()` hook applies the global switches before persisted tenant values.
 
 ## Data And Localization
 
 Migrations, factories, seeders, and translation files are part of the contract.
 
 - Use package migrations in `database/migrations`, with stubs only when the install flow expects publishing.
+- `TenantSchema::addTenantColumn()` is evaluated when migrations run. Install a tenant provider before migrating when profiles must be tenant-scoped; enabling tenancy later does not retrofit `tenant_id`.
 - Use factories under `database/factories` and seeders under `database/seeders`. Keep them tenant-safe: import no concrete tenant provider and set no `tenant_id` directly; let `BelongsToTenant` assign it from the current tenant so they work with tenancy on or off.
 - Keep demo fixtures deterministic and tenant-safe.
 - Update all supported locales together and keep translation keys sorted.
