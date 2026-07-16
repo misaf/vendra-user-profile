@@ -7,6 +7,12 @@ description: "Create, modify, review, or test the Vendra User Profile package in
 
 ## Workflow
 
+## Translatable Persistence
+
+- Making a persisted model field translatable is an explicit domain choice unless this package already requires it.
+- Every field listed in a model's `$translatable` array must definitely use a JSON database column. Keep its model traits/casts, factories, validation, Filament locale UI, API serialization, and tests translation-aware.
+- A field not listed in `$translatable` must use the appropriate scalar database type and must not use Spatie Translatable, translatable slug traits, locale switchers, translated callbacks, or translation-shaped array data.
+
 Always use this skill together with `laravel-best-practices` for Laravel PHP and `pest-testing` when tests are added or changed. Use `tailwindcss-development` only when editing Blade or Tailwind UI.
 
 Before code changes, use Laravel Boost `application-info` and `search-docs` for the relevant packages. Prefer Boost database and browser tools over ad hoc debugging.
@@ -31,15 +37,18 @@ Follow the existing `UserProfile` patterns for new user-profile entities.
 - Hide `tenant_id` and keep tenant behavior centralized in the support layer; do not duplicate tenant scoping or `tenant_id` assignment in models, Filament resources, factories, or seeders. `BelongsToTenant` assigns `tenant_id` on `creating` from the current tenant.
 - Reuse only the traits and conventions present on the affected sibling model; do not infer translations, media, slugs, sorting, or soft deletes from another package.
 - Registers `profiles` / `userProfiles` on the `User` model via `User::resolveRelationUsing(...)` in the service provider; do not hard-code the relation on the `User` class.
+- Own only the generic `UserProfileRelationManagers` extension registry. Address, Phone, Document, and Verification are optional packages that depend on User Profile; User Profile must not import or require them.
 
 ## Filament Standards
 
-Keep Filament UI under `src/Filament/Clusters/Resources`. `UserProfileResource` belongs to the shared `CustomersCluster` through its `$cluster` property, so its namespace and plugin discovery path must use `Filament\Clusters\Resources`.
+Keep every resource that declares a `$cluster`, including its complete supporting tree, under `src/Filament/Clusters/Resources/` with the matching `Misaf\VendraUserProfile\Filament\Clusters\Resources` namespace and plugin discovery path. Resources without a cluster belong under `src/Filament/Resources/`.
 
 - Register module UI through the module `Plugin` and `ServiceProvider`; do not manually wire resources in unrelated panel providers.
+- Resolve resource relation managers from `UserProfileRelationManagers` so independently installed providers can contribute UI without reverse dependencies.
 - Keep resource classes thin. Delegate form schemas to `Schemas/*Form.php` and table configuration to `Tables/*Table.php`.
 - Use Filament v5 namespaces: form fields from `Filament\Forms\Components`, layout from `Filament\Schemas\Components`, table columns from `Filament\Tables\Columns`, filters from `Filament\Tables\Filters`, actions from `Filament\Actions`, and icons from `Filament\Support\Icons\Heroicon`.
 - Use this module's translation keys (`vendra-user-profile::attributes`, `vendra-user-profile::navigation`) for labels, breadcrumbs, and navigation.
+- Keep `UserProfileResource` in `CustomersCluster` with navigation sort `2`, and group it with `UserResource` through `vendra-user::navigation.user_management`.
 - Prevent N+1 issues in tables and relation managers with eager loading, `withCount`, or computed state based on loaded relationships.
 - Use public media visibility only when public access is actually required.
 
@@ -51,7 +60,7 @@ Use policy enums and policies as the permission source.
 - Keep policy method names aligned with Filament actions: `viewAny`, `view`, `create`, `update`, `delete`, `deleteAny`, `restore`, `restoreAny`, `forceDelete`, `forceDeleteAny`, `replicate`, and `reorder` as applicable.
 - Update `PermissionPolicySeeder` when new permissions are introduced.
 - Keep navigation labels and groups configurable through the module `Plugin` and `config/vendra-user-profile.php`. Do not add a `tenant_aware` config value; tenant awareness derives from the bound `TenantResolver`.
-- Keep feature configuration flat with `features_enabled`, `features_discover`, and `module_enabled`; do not introduce nested `features.*` keys. Check module access through `Features\ModuleEnabled::class`, whose Pennant `before()` hook applies the global switches before persisted tenant values.
+- Keep feature configuration flat with `features_enabled`, `features_discover`, and `module_enabled`; do not introduce nested `features.*` keys. Default an installed module to enabled so User Profiles appears beside Users, but preserve explicit environment overrides. Check access through `Features\ModuleEnabled::class`, whose Pennant `before()` hook applies the global switches before persisted tenant values.
 
 ## Data And Localization
 
