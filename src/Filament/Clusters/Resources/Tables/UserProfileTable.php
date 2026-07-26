@@ -58,13 +58,11 @@ final class UserProfileTable
                 ->icon(Heroicon::DocumentText)
                 ->toggleable(isToggledHiddenByDefault: true),
 
-            ToggleColumn::make('status')
-                ->label(__('vendra-user-profile::attributes.status'))
+            ToggleColumn::make('active')
+                ->label(__('vendra-user-profile::attributes.active'))
                 ->onIcon(Heroicon::Bolt),
 
             TextColumn::make('created_at')
-                ->alignCenter()
-                ->badge()
                 ->extraCellAttributes(['dir' => 'ltr'])
                 ->label(__('vendra-user-profile::table.columns.created_at'))
                 ->sinceTooltip()
@@ -75,8 +73,6 @@ final class UserProfileTable
                 ),
 
             TextColumn::make('updated_at')
-                ->alignCenter()
-                ->badge()
                 ->extraCellAttributes(['dir' => 'ltr'])
                 ->label(__('vendra-user-profile::table.columns.updated_at'))
                 ->sinceTooltip()
@@ -109,7 +105,7 @@ final class UserProfileTable
                                 ),
                             TextConstraint::make('slug'),
                             BooleanConstraint::make('is_default'),
-                            BooleanConstraint::make('status'),
+                            BooleanConstraint::make('active'),
                         ]),
                 ],
                 layout: FiltersLayout::AboveContentCollapsible,
