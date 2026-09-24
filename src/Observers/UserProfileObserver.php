@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace Misaf\VendraUserProfile\Observers;
 
-use Misaf\VendraUserProfile\Models\UserProfile;
+use Misaf\VendraSupport\Observers\Concerns\MaintainsSingleFlagPerOwner;
 
+/**
+ * Keep exactly one default profile per user. Synchronous, because the flag is
+ * adjusted before the write.
+ */
 final class UserProfileObserver
 {
-    public function saving(UserProfile $userProfile): void
-    {
-        if (! $userProfile->is_default) {
-            return;
-        }
+    use MaintainsSingleFlagPerOwner;
 
-        UserProfile::query()
-            ->where('user_id', $userProfile->user_id)
-            ->where('is_default', true)
-            ->whereKeyNot($userProfile->getKey())
-            ->update(['is_default' => false]);
+    protected function flagColumn(): string
+    {
+        return 'is_default';
+    }
+
+    protected function ownerColumn(): string
+    {
+        return 'user_id';
     }
 }
